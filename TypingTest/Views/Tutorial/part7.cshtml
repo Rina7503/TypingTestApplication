@@ -1,0 +1,409 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part7";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>7. Add Validation and Notification Problems</h1>
+<p>In this step you will analyze the problems occurred in the app and solve them by adding notifications and verification of the keyboard layout and the test UI elements.</p>
+
+<h3>Analyze current problems</h3>
+<p>
+    The test works correctly if you do all the required actions: set the text fragment, the time period and start printing in the bottom DIV block. But what will happen if you do not do this? See the following image.
+    <img src="~/Content/Tutorial/13.png" alt="The test before adding validation functional" />
+</p>
+<p class="imageDescr">The test before adding validation</p>
+<p>Immediately several problems occur.</p>
+<ul>
+    <li><p>The timer starts counting from zero, so its value becomes negative.</p></li>
+    <li><p>The original text has not been loaded to the <code>textOriginal</code> block, so all the printed text has been colored red.</p></li>
+    <li><p>The user does not know where he is supposed to start printing, there are no tips about it.</p></li>
+    <li><p>The user can start printing using the keyboard layout which does not suit the language of the text. He will not receive any notifications.</p></li>
+</ul>
+
+<h3>Add notifications</h3>
+<p>Notifications are due to occur in the next several cases.</p>
+<ul>
+    <li><p>The keyboard layout does not suit the language of the text.</p></li>
+    <li><p>The text fragment has not been chosen.</p></li>
+    <li><p>The time period has not been chosen.</p></li>
+    <li><p>The user is trying to change the text fragment after the test has already started.</p></li>
+    <li><p>The user is trying to change the time period after the test has already started.</p></li>
+    <li><p>The test time has been expired.</p></li>
+    <li><p>The user has printed all the text of the selected fragment.</p></li>
+</ul>
+
+<p>Having done the following steps, you create the HTML markup, the CSS styles, the <b>JavaScript</b> class and its instance to display the tooltips.</p>
+<ol>
+    <li>
+        <p>Add the following HTML markup to the <b>Index.cshtml</b> view.</p>
+<pre>
+&lt;div id="modal"&gt;
+    &lt;form class="hiddenForm"&gt;
+        &lt;p id="modalNotice"&gt;Please, change the keyboard layout!&lt;/p&gt;
+        &lt;input id="okButton" class="modal_close_ok" type="button" value="ОК"&gt;
+        &lt;input id="cancelButton" class="continue_unvisible" type="button" value="Cancel"&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+    &lt;div id="overlay"&gt;&lt;/div&gt;
+</pre>
+    </li>
+    <li>
+        <p>Add the CSS styles to the <b>MyStyles.css</b> file.</p>
+<pre>
+#overlay {
+	z-index:3; 
+	position:fixed;
+	background-color: rgba(240,240,240,0.7);
+	width:100%; 
+	height:100%; 
+	top:0;
+	left:0;
+	cursor:pointer;
+	display:none;
+}
+#modal, #modalChoise {
+	width: 310px; 
+	height: 120px;
+	border-radius: 7px;
+    border: 1px solid #bdbdbd;
+	background: #fff;
+	position: fixed;
+	top: 45%; 
+	left: 50%;
+	margin-top: -160px;
+	margin-left: -160px;
+	display: none; 
+	opacity: 0;
+	z-index: 5;
+	padding: 20px 10px;
+}
+.hiddenForm>p {
+    color: #555555;
+    font-weight: bold;
+    width: 280px;
+    text-align:center;
+}
+.continue_reload{
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    width: 100px;
+}
+.modal_close_back {
+    width: 100px;
+    margin: 0 20px 0 35px;
+    padding: 0;
+    float: left;
+}
+.modal_close_ok {
+    float: none;
+    margin-top: 0px;
+    margin-left: 74px;
+    margin-right: 0;
+    margin-bottom: 5px;
+    text-align: center;
+    width: 140px;
+}
+.continue_unvisible {
+    display: none;
+    width: 0;
+    float: none;
+}
+</pre>
+    </li>
+    <li>
+        <p>Create a new <b>JavaScript</b> file to the <b>Scripts\MyScripts</b> folder, name it <b>ErrorMessageHelper</b>, and then add the following code to it.</p>
+<pre>
+function ErrorMessageHelper() {
+    var self = this;
+    var _okCallbackHandler = null;
+    var _cancelCallbackHandler = null;
+    this.errorMessageClosed = $.Callbacks();
+    this.errorMessageShowing = $.Callbacks();
+    function subscribeEvents() {
+        document.getElementById('okButton').addEventListener("click", okButtonClick, false);
+        document.getElementById('cancelButton').addEventListener("click", cancelButtonClick, false);
+    };
+    
+    function okButtonClick() {
+        closeErrorMsg();
+        self.errorMessageClosed.fire("ok");
+        if (_okCallbackHandler) {
+            _okCallbackHandler();
+        }
+    }
+    function cancelButtonClick() {
+        closeErrorMsg();
+        self.errorMessageClosed.fire("cancel");
+        if (_cancelCallbackHandler) {
+            _cancelCallbackHandler();
+        }
+    }
+    
+    this.showMessage = function (errorMessage, showYesNoButton, okCallbackHandler, cancelCallbackHandler) {
+        _okCallbackHandler = okCallbackHandler;
+        _cancelCallbackHandler = cancelCallbackHandler;
+        document.getElementById('modalNotice').innerHTML = errorMessage;
+        showYesNoButton ? showAdvancedErrorMsg() : showNormalErrorMsg();
+        this.errorMessageShowing.fire();
+    }
+    function showAdvancedErrorMsg() {
+        $('#modalNotice').css('margin-bottom', '22px');
+        $("#okButton")
+                .attr("class", "modal_close_back");
+        $("#cancelButton")
+                .attr("class", "continue_reload")
+                .animate({ opacity: 1 }, 200);
+        $('#textInputContainer').attr("contenteditable", false);
+        $('#overlay').fadeIn(200),
+           $('#modal')
+                   .css('display', 'block')
+                   .animate({ opacity: 1 }, 200);
+    }
+    function showNormalErrorMsg() {
+        $('#modalNotice').css('margin-bottom', '15 px');
+        $("#okButton")
+                .attr('class', 'modal_close_ok');
+        $("#cancelButton").attr("class", "continue_unvisible");
+        $('#textInputContainer').attr("contenteditable", false);
+        $('#overlay').fadeIn(200),
+           $('#modal')
+                   .css('display', 'block')
+                   .animate({ opacity: 1 }, 200);
+    }
+    function closeErrorMsg() {
+        if ($('#textInputContainer').attr("contenteditable") == "false") {
+            $('#textInputContainer').attr("contenteditable", true);
+        }
+        $('#modal').animate({ opacity: 0 }, 200);
+        $('#modal').css('display', 'none');
+        $('#overlay').fadeOut(200);
+    }
+    subscribeEvents();
+}
+</pre>
+        <p>The <code>ErrorMessageHelper</code> class has the only public function <b>showMessage</b>.</p>
+        <div class="container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>showMessage</td>
+                        <td>The function shows the warning message with the one <b>OK</b> button or two buttons <b>OK</b> and <b>Cancel</b>, and performs the actions depending on which button has been pressed.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>This function accepts the following parameters.</p>
+        <ul class="params">
+            <li class="params"><p class="paramTitle">errorMessage</p><p>Type: String</p><p>A string value with the error or warning message.</p></li>
+            <li class="params"><p class="paramTitle">showYesNoButton</p><p>Type: Boolean</p><p>A boolean value. In case it is equal to <code>true</code>, the <b>Cancel</b> button will be shown. In other cases only the <b>OK</b> button will be shown.</p></li>
+            <li class="params"><p class="paramTitle">okCallbackHandler</p><p>Type: Function</p><p>A callback function will be performed after the <b>OK</b> button has been clicked.</p></li>
+            <li class="params"><p class="paramTitle">cancelCallbackHandler</p><p>Type: Function</p><p>A callback function will be performed after the <b>Cancel</b> button has been clicked.</p></li>
+        </ul>
+    </li>
+    <li>
+        <p>Add the <b>ErrorMessageHelper.js</b> file to the project by adding the script to the view.</p>
+<pre>
+    &lt;script type="text/javascript" src="~/Scripts/MyScripts/ErrorMessageHelper.js"&gt;&lt;/script&gt;
+</pre>
+    </li>
+    <li>
+        <p>In the <b>TypingTrainerController</b> class add a new field.</p>
+<pre>
+    var errorMessageHelper = null;
+</pre>
+    </li>
+    <li>
+        <p>In the <code>initialize</code> function of the <b>TypingTrainerController</b> class add the following code to initialize the field using an instance of the <code>errorMessageHelper</code> class.</p>
+<pre>
+    errorMessageHelper = new ErrorMessageHelper();
+</pre>
+    </li>
+    <li>
+        <p>When the modal window is going to be shown, notify the <code>TypingTrainerController</code> class to stop the timer. Use the existing callback <code>errorMessageShowing</code> to do this. Do the same action to notify the controller that the modal window is going to be closed to continue the time countdown. Add the following code to the end of the <code>initialize</code> method of the <code>TypingTrainerController</code> class.</p>
+<pre>
+        errorMessageHelper.errorMessageShowing.add(function () { timerPause(); });
+        errorMessageHelper.errorMessageClosed.add(function () { timerGo(); });
+</pre>
+    </li>
+</ol>
+
+<h3>Add the settings to the timer</h3>
+
+<p>The notifications displaying should interrupt the timer counting. Do not skip the following steps.</p>
+<ol>
+    <li>
+        <p>To stop the timer once the error message is displayed and start it once the message is closed, add the following methods to the <code>TypingTrainerController</code> class.</p>
+        <pre>
+    function timerPause() {
+        if (isTimerStarted) {
+            clearInterval(MyTimer);
+            isTimerStarted = false;
+        }
+    }
+    function continueTest() {
+        timerGo();
+        var text = document.getElementById('Texts');
+        var time = document.getElementById('Time');
+        if (text.selectedIndex != currentTextIndex) {
+            text.selectedIndex = currentTextIndex;
+        }
+        if (time.selectedIndex != currentTimeIndex) {
+            time.selectedIndex = currentTimeIndex;
+        }
+    }
+</pre>
+    </li>
+    <li>
+        <p>To show the modal window with the notification in case the time is expired, add the following code to the <code>timerGo</code> method of the <code>TypingTrainerController</code> class.</p>
+<pre>
+    errorMessageHelper.showMessage("Time is up!", false, function () { stopTest(); });
+</pre>
+    </li>
+</ol>
+
+<h3>Add verification</h3>
+<p>The verification of the keyboard layout and the UI elements will allow to set the test settings thoroughly before the user start input the text. To add it:</p>
+<ol>
+    <li>
+        <p>In the <code>FieldKeyPress</code> method of the <code>PrintController</code> class add a new field <b>isCancelled</b> to the anonymous object which is used to initialize the <code>tempArgs</code> variable.</p>
+<pre>
+    var tempArgs = { currentArgs: e, isCancelled: false };
+</pre>
+    </li>
+    <li>
+        <p>Add the condition to the <code>FieldKeyPress</code> method depending on the <code>isCancelled</code> value. The method has to continue the processing only if the test settings are set that means the <code>isCancelled</code> value is due to be equal to <code>true</code>. The <code>FieldKeyPress</code> method is due to look like the following.</p>
+<pre>
+    function FieldKeyPress(e) {
+        if (e.key.length <= 1) {
+            var tempArgs = { currentArgs: e, isCancelled: false };
+            self.symbolPrinting.fire(tempArgs);
+            if (!tempArgs.isCancelled) {
+                symbolsCount++;
+                if (e.code == "Space") {
+                    if (currentWord != "") {
+                        wordsCounter++;
+                        var param = { counter: wordsCounter, currentWord: currentWord, isMistake: false };
+                        self.wordPrinted.fire(param);
+                        paintText(param.isMistake); //tag adds or not into the currentTextFieldValue
+                        document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + endTag;
+                    }
+                    currentWord = ""; 
+                }
+                else {
+                    currentWord = currentWord + e.key;
+                    document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + currentWord + endTag;
+                }
+            }
+            var cursor = "&lt;div id='mock_cursor'&gt; &lt;/div&gt;";
+            $("#mock_cursor").remove();
+            if (($("#userText")).length == 0) {
+                document.getElementById("textOutputContainer").innerHTML = startTag + endTag;
+            }
+            $(cursor).insertAfter($("#userText"));
+        }
+    }
+</pre>
+    </li>
+    <li>
+        <p>To add the validation of the keyboard layout and drop-down combo boxes, turn to the <code>TypingTrainerController</code> class. Add functions to the class like it is shown below.</p>
+<pre>
+    function checkKeyboardLanguage(objArgs) {
+        if (objArgs.currentArgs.key.match(/([а-яА-Я]+)/)) {
+            return false;
+        }
+        return true;
+    }  
+    function checkTestParams() {
+        var text = document.getElementById('Texts');
+        var time = document.getElementById('Time');
+        if (text.selectedIndex == 0 || time.selectedIndex == 0) {
+            return false;
+        }
+        return true;
+    }
+</pre>
+    </li>
+    <li>
+        <p>To add and execute the functions in the app, correct the <code>printControllerSymbolPrinting</code> method.</p>
+<pre>
+    function printControllerSymbolPrinting(tempArgs) {
+        currentTextIndex = document.getElementById('Texts').selectedIndex;
+        currentTimeIndex = document.getElementById('Time').selectedIndex;
+        if (!checkKeyboardLanguage(tempArgs)) {
+            tempArgs.isCancelled = true;
+            errorMessageHelper.showMessage("Please, change keyboard layout!", false);
+        } else {
+            if (!checkTestParams()) {
+                tempArgs.isCancelled = true;
+                errorMessageHelper.showMessage("Please, select the text and/or the time period!", false);
+            } else {
+                tempArgs.isCancelled = false;
+                symbCount++;
+                symbCountPerSecound++;
+                timerGo();
+            }
+        }
+    }
+</pre>
+    </li>
+</ol>
+<p>You have added the validation of the UI elements of the test and the keyboard layout. It will proceed once the user input the first char but before the char will be displayed in the <code>textOutputContainer</code> element.</p>
+
+<h3>Add other notifications</h3>
+<ol>
+    <li>
+        <p>To prevent the printed data loss in case the user changes the text fragment or the time period after the test has already been started, correct the <code>textBoxChanged</code> and <code>timeBoxChanged</code> methods to take the printed text into account. The methods look as it is shown below.</p>
+<pre>
+    function textBoxChanged() {
+        if (printController.isFieldEmpty()) {
+            loadText();
+        }
+        else {
+            errorMessageHelper.showMessage("Your data will be lost!", true, function () { reloadTest(); }, function () { continueTest(); });
+        }
+    }
+    function timeBoxChanged() {
+        if (printController.isFieldEmpty()) {
+            setTimer();
+        }
+        else {
+            errorMessageHelper.showMessage("Your data will be lost!", true, function () { reloadTest(); }, function () { continueTest(); });
+        }
+    }
+</pre>
+    </li>
+    <li>
+        <p>Correct the <code>printControllerWordPrinted</code> method as it is given below, by adding a new condition to display the tooltip in case the user has finished the text input.</p>
+<pre>
+    function printControllerWordPrinted(objArgs) {
+        wordsCounter = objArgs.counter;
+        DivideOrigTextByWords();
+        if (origTextArray.length > 1 && wordsCounter == origTextArray.length) {
+            errorMessageHelper.showMessage("Congratulations! You have completed the text input!", false, function () { stopTest(); });
+        }
+        if (objArgs.currentWord != origTextArray[wordsCounter - 1]) {
+            objArgs.isMistake = true;
+            mistakesCount++;
+            document.getElementById('mistakes').innerHTML = mistakesCount;
+        }
+    }
+</pre>
+    </li>
+</ol>
+<p>
+    At this stage the problems with settings have been solved. The user will see the tooltip like it is shown in the following image in case he did not set one of the test settings.
+    <img src="~/Content/Tutorial/14.png" alt="The keyboard layout is not suitable" />
+</p>
+<p class="imageDescr">The modal window notifies that the keyboard layout is not suitable</p>
+
+<p>The user will see the image below once he has input all the text of the chosen fragment. <img src="~/Content/Tutorial/15.png" alt="The text has been input" /></p>
+<p class="imageDescr">The modal window notifies that the text has been input</p>

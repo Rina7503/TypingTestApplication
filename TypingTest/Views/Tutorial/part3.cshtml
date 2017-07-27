@@ -1,0 +1,112 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part3";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>3. Add the Loading of the Original Text</h1>
+
+<p>The next step includes the creation the DIV element to load the text and <b>JavaScript</b> class responsible for the text loading into the element depending on the selected value of the <b>Text</b> drop-down combo box.</p>
+
+<h3> To create a new DIV element for the text loading</h3>
+<ol>
+    <li>
+        <p>Create a new DIV element with <code>id="textOriginal"</code> attribute in the view after the menu DIV. It will be named as the <code>textOriginal</code> element on subsequent mentions.</p>
+    </li>
+    <li>
+        <p>Add the following CSS styles to the <b>MyStyles.css</b> file. </p>
+<pre class="code">
+#textOriginal {
+    height:250px;
+    width:100%;
+    background-color: rgba(240,240,240,0.3);
+    border-radius:5px;
+    border:1px solid #cccccc;
+    font-size: 1.5em;
+    overflow:hidden;
+}
+</pre>
+    </li>
+</ol>
+
+<h3>To add the <b>JavaScript</b> code responsible for the text loading</h3>
+<ol>
+    <li><p>Add a new folder <b>MyScripts</b> to the <b>Scripts</b> existing folder.</p></li>
+    <li>
+        <p>In the <b>MyScripts</b> folder add a new file <b>TypingTrainerController.js</b>. To do it, right-click <b>MyScripts</b> folder, click <b>Add</b>, and then click <b>JavaScript File</b>. In the <b>Specify Name for Item</b> dialog box enter <b>TypingTrainerController</b>, and click <b>OK</b>.</p>
+    </li>
+    <li>
+        <p>
+            Add a link for the <b>TypingTrainerController.js</b> file to the end of the <b>Index</b> view.
+<pre class="code">
+&lt;script type="text/javascript" src="~/Scripts/MyScripts/TypingTrainerController.js"&gt;&lt;/script&gt;
+</pre>
+    </li>
+    <li>
+        <p>Open the file <b>TypingTrainerController.js</b>. Paste the following code to the file.</p>
+<pre class="code">
+function TypingTrainerController() {
+    var currentTextName = "";
+    function subscribeEvents(e) {
+        document.getElementById("Texts").addEventListener("change", textBoxChanged, false);
+    }
+    function textBoxChanged() {
+        loadText();
+    }
+    function loadText() {
+        var selectedTextIndex = document.getElementById("Texts").selectedIndex;
+        switch (selectedTextIndex) {
+                case 0: {
+                document.getElementById("textOriginal").innerHTML = "";
+                currentTextName = "";
+            }
+                break;
+            case 1: {
+                $('#textOriginal').load('./Content/Texts/Jack_London_Martin_Iden.html');
+                currentTextName = "Jack London - Martin Iden";
+            }
+                break;
+            case 2: {
+                $('#textOriginal').load('./Content/Texts/Astronauts.html');
+                currentTextName = "Astronauts";
+            }
+                break;
+            case 3: {
+                $('#textOriginal').load('./Content/Texts/Zebras.html');
+                currentTextName = "Zebras";
+            }
+                break;
+            case 4: {
+                $('#textOriginal').load('./Content/Texts/short.html');
+                currentTextName = "short";
+            }
+                break;
+            default:
+                break;
+        }
+    }
+        subscribeEvents();
+}
+</pre>
+        <p>You have added a new <code>TypingTrainerController</code> class which has the private field <code>currentTextName</code> to store the current text's name and the private functions. The <code>subscribeEvents</code> function subscribes the <b>Text</b> SELECT element for the <b>change</b> event using the <code>textBoxChanged</code> function. In its turn, the <code>textBoxChanged</code> calls the text loading into the <code>textOriginal</code> element depending on the selected value of the <b>Text</b> SELECT element.</p>
+    </li>
+    <li>
+        <p>Add the piece of <b>JavaScript</b> code to the bottom of the view.</p>
+<pre class="code">
+&lt;script type="text/javascript"&gt;
+    $(document).ready(
+         function () {
+             var customAppController = new TypingTrainerController();
+         }
+     );
+&lt;/script&gt;
+</pre>
+        <p>This code contains the function called once the view has been loaded. The function creates an instance of the <code>TypingTrainerController</code> class and calls its method <code>subscribeEvents()</code>.</p>
+    </li>
+</ol>
+<p>Add the texts to the project. Create a new folder <b>Texts</b> in the existing folder <b>Content</b> and fill it with the texts.</p>
+<p>
+    Run the project and press Ctrl + F5 in the browser to reload all the sources from the server. The project looks like in the following image.
+    <img src="~/Content/Tutorial/10.png" alt="Loading the text by changing the combobox selected item" />
+<p class="imageDescr">Loading the text by changing the combo box selected item</p>
+<p>At this stage you can load the text to the <code>textOriginal</code> element by selecting a value in the <b>Texts</b> drop-down combo box.</p>

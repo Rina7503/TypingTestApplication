@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Typing Test</h1>
+
+<div>
+    <div id="menu">
+        <div id="comboText">
+            <p>Text:</p>
+            <div class="comboboxContainer">
+                @Html.DropDownList("Texts", new SelectList(ViewBag.Texts), "Select text", new { @class = "form-control" })
+            </div>
+        </div>
+        <div id="comboTime">
+            <p>Time, min.:</p>
+            <div class="comboboxContainer">
+                @Html.DropDownList("Time", new SelectList(ViewBag.timeList), "Select time, min.", new { @class = "form-control" })
+            </div>
+        </div>
+        <div>
+            <p>Speed keys/sec</p>
+            <p id="currentSpeed">0</p>
+        </div>
+        <div>
+            <p>Mistakes</p>
+            <p id="mistakes">0</p>
+        </div>
+        <div>
+            <p>Timer</p>
+            <p id="timer">00:00</p>
+        </div>
+        <div id="stop" style="cursor: pointer;">
+            <p>Finish</p>
+            <p id="stopCurrGame"></p>
+        </div>
+        <div id="reload" style="cursor: pointer;">
+            <p>Restart</p>
+            <p id="refreshCurrGame"></p>
+        </div>
+    </div>
+    <div id="textOriginal">
+    </div>
+
+    <div id="textOutputContainer" contenteditable="true">
+        <p id="startText">Start printing here!</p>
+        <div id='mock_cursor' style="visibility:hidden;"></div>
+    </div>
+    <div id="textInputContainer" contenteditable="true"></div>
+
+</div>
+
+<div id="modal">
+    <form class="hiddenForm">
+        <p id="modalNotice">Please, change keyboard layout!</p>
+        <input id="okButton" class="modal_close_ok" type="button" value="ОК">
+        <input id="cancelButton" class="continue_unvisible" type="button" value="Cancel">
+    </form>
+</div>
+
+<div id="overlay"></div>
+
+<script type="text/javascript" src="~/Scripts/MyScripts/PrintController.js"></script>
+<script type="text/javascript" src="~/Scripts/MyScripts/ErrorMessageHelper.js"></script>
+<script type="text/javascript" src="~/Scripts/MyScripts/TypingTrainerController.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(
+         function () {
+             var customAppController = new TypingTrainerController();
+         }
+     );
+
+    function sendData(resultTestObject) {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Result")",
+            data: { testResult: resultTestObject },
+        success: function (responceData) {
+            var detailDiv = $('#viewMainContent');
+            detailDiv.replaceWith(responceData);
+        }
+    });
+    }
+
+</script>

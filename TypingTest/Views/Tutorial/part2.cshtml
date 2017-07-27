@@ -1,0 +1,246 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part2";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>2. Add the Selection of the Text Fragment and the Time Period</h1>
+
+<p>In this section you will modify the <code>Index</code> method of the <code>TestController</code> and the <code>Index</code> view so that the view had an ability to change the time period and the text fragment. You will create drop-down combo boxes in the view and specify their data sources in the controller method. You will also make the main view more attractive by adding CSS styles.</p>
+<h3>To create data sources for drop-down combo boxes</h3>
+<ol>
+    <li>
+        <p>Replace the content of the <code>Index</code> method of the <code>TestController</code> class with the following code.</p>
+<pre>
+    public class TestController : Controller {
+        public ViewResult Index()
+        {
+            List&lt;string&gt; Texts = new List&lt;string&gt;();
+            Texts.Add("Jack London - \"Martin Iden\"");
+            Texts.Add("Astronauts");
+            Texts.Add("Zebras");
+            Texts.Add("short");
+            
+            List&lt;int&gt; timeList = new List&lt;int&gt;();
+            timeList.Add(1);
+            timeList.Add(2);
+            timeList.Add(3);
+            
+            return View();
+        }
+    }
+</pre>
+        <p>You have added two lists: the first list <code>Texts</code> contains the <b>string</b> values with the text fragments' titles. The user can select one of them to print its content. The second list <code>timeList</code> contains the time periods to set the appropriate test duration.</p>
+    </li>
+    <li>
+        <p>Add two statements given below to the <b>Index</b> method.</p>
+<pre>
+            ...
+            timeList.Add(3);
+            ViewBag.Texts = Texts;
+            ViewBag.timeList = timeList;
+    
+            return View();
+        }
+    }
+</pre>
+        <p> You have defined a dynamic property of the <b><a href="https://msdn.microsoft.com/en-us/library/system.web.mvc.controllerbase.viewbag(v=vs.118).aspx">ViewBag</a></b> object for every list.</p>
+    </li>
+</ol>
+
+<h3>To create drop-down combo boxes in the view</h3>
+<p>Delete the existing H2 tags, and then add the following HTML markup.</p>
+<pre class="numberedCode">
+&#64;{
+    ViewBag.Title = "Typing Test";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+&lt;h1&gt;Typing Test&lt;/h1&gt;
+&lt;div id="comboText"&gt;
+    &lt;p&gt;Text:&lt;/p&gt;
+    &lt;div class="comboboxContainer"&gt;
+            &#64;Html.DropDownList("Texts", new SelectList(ViewBag.Texts), "Select text", new { &#64;class = "form-control" })
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="comboTime"&gt;
+    &lt;p&gt;Time, min.:&lt;/p&gt;
+    &lt;div class="comboboxContainer"&gt;
+            &#64;Html.DropDownList("Time", new SelectList(ViewBag.timeList), "Select time, min.", new { &#64;class = "form-control" })
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p>The tag helper <code>Html.DropDownList</code> are used to generate the SELECT elements which are drop-down combo boxes.</p>
+<p>The piece of HTML markup for the first combo box, which contains the text titles, includes:</p>
+<ul>
+    <li>The <code>&lt;div id="comboText"&gt;</code> element wrapper to separate the HTML elements of one combo box from another into the markup block and specify the CSS styles for this block.</li>
+    <li>The <code>&lt;p&gt;</code> HTML element with the text "Text:" as a title for the combo box.</li>
+    <li>The <code>&lt;div class="comboboxContainer"&gt;</code> as a wrapper for the drop-down combo box.</li>
+    <li>The drop-down combo box is located in the DIV element which has the <code>class="comboboxContainer"</code> attribute. The <a href="https://docs.microsoft.com/en-us/aspnet/web-pages/overview/getting-started/introducing-razor-syntax-c">Razor</a> syntax <code>&#64;Html.DropDownList;</code> creates a drop-down combo box and fills it with the values of the ViewBag.Texts property, sent from the controller method. </li>
+</ul>
+<p>The piece of HTML markup for the second combo box, which contains the time periods, includes similar markup with some difference.</p>
+<ul>
+    <li>The external <code>&lt;div&gt;</code> block has <code>id="comboTime"</code></li>
+    <li>The <code>&lt;p&gt;</code> HTML element with the text "Time, min.:" as a title for the combo box.</li>
+    <li>It also has the <code>&lt;div class="comboboxContainer"&gt;</code> as a wrapper for the drop-down combo box.</li>
+    <li>Razor syntax <code>&#64;Html.DropDownList;</code> creates a drop-down combo box and fills it using the values of the ViewBag.timeList property, sent from the controller method.</li>
+</ul>
+<p>If you run the project at this stage and open the <code>Index</code> view of the <code>TestController</code> controller, you will see the following view. <img src="~/Content/Tutorial/8.png" alt="Drop-down lists in the view" /></p>
+<p class="imageDescr">Drop-down lists in the view before adding CSS styles</p>
+<p>
+    As you can see, two SELECT elements have appeared in the view. The first one has the text "Select text" as the <code>option value</code>. Each item of the list <code>Texts</code> sent from the controller is displayed as the <code>option</code> in this element's list. The second select element contains the "Select time" text as the <code>option value</code>. On the list of the options it has "1", "2" and "3" seconds. You can select any value among the existing ones in each SELECT element.
+</p>
+
+<h3>To do the view more attractive</h3>
+<ol>
+    <li>
+        <p>To create a menu for the application, add <code>&lt;div id = "menu"&gt;</code> to the <code>Index</code> view. Use it as a container for the existing HTML markup. Make sure your markup is equal to the following.</p>
+<pre class="numberedCode">
+&#64;{
+    ViewBag.Title = "Typing Test";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+&lt;h1&gt;Typing Test&lt;/h1&gt;
+&lt;div id="menu"&gt;
+    &lt;div id="comboText"&gt;
+        &lt;p&gt;Text:&lt;/p&gt;
+        &lt;div class="comboboxContainer"&gt;
+            &#64;Html.DropDownList("Texts", new SelectList(ViewBag.Texts), "Select text", new { &#64;class = "form-control" })
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id="comboTime"&gt;
+        &lt;p&gt;Time, min.:&lt;/p&gt;
+        &lt;div class="comboboxContainer"&gt;
+            &#64;Html.DropDownList("Time", new SelectList(ViewBag.timeList),"Select time", new { &#64;class = "form-control" })
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+        <p>The start tag of the menu DIV is located in line 8, end tag in line 21.</p>
+    </li>
+    <li>
+        <p>To add the styles for the HTML elements of the view, create a new file <b>MyStyles</b> in the <b>Content</b> folder. To do it, right-click at the <b>Content</b> folder, click <b>Add</b>, then click <b>Style Sheet</b>, enter name <b>MyStyles</b> in the <b>Specify Name for Item</b> dialog box, and then click <b>OK</b>. The file <b>MyStyles.css</b> has been created and opened in the development environment.</p>
+    </li>
+    <li>
+        <p>Make the following changes in the <b>_Layout.cshtml</b> file.</p>
+        <ul>
+            <li>
+                <p>To add the <b>MyStyles.css</b> file to the project, open the file <b>_Layout.cshtml</b> in the <b>Views\Shared</b> folder. Add the following link to the <code>&lt;header&gt;</code> section.</p>
+<pre>
+&lt;link type="text/css" href="~/Content/MyStyles.css" rel="stylesheet" /&gt;
+</pre>
+            </li>
+            <li>
+                <p>Add the following link to add the <b>jQuery</b> library to the project.</p>
+<pre>
+&lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"&gt;&lt;/script&gt;
+</pre>
+            </li>
+            <li>
+                <p>Change the top menu replacing the action link in line 21 of the <b>_Layout.cshtml</b> file with the following.</p>
+<pre>
+    &#64;Html.ActionLink("Typing Test", "Index", "Test", new { area = "" }, new { &#64;class = "navbar-brand" })
+</pre>
+            </li>
+            <li>
+                <p>Delete submenu <code>ul class="nav navbar-nav"</code> in lines 24-28 of the <b>_Layout.cshtml</b> file.</p>
+            </li>
+        </ul>
+        <p>As a result, the <b>_Layout.cshtml</b> file is due to look like the following</p>
+<pre class="numberedCode">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="utf-8" /&gt;
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        &lt;title&gt;&#64;ViewBag.Title - My ASP.NET Application&lt;/title&gt;
+        &lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"&gt;&lt;/script&gt;
+        &lt;link type="text/css" href="~/Content/MyStyles.css" rel="stylesheet" /&gt;
+        &#64;Styles.Render("~/Content/css")
+        &#64;Scripts.Render("~/bundles/modernizr")
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
+            &lt;div class="container"&gt;
+                &lt;div class="navbar-header"&gt;
+                    &lt;button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"&gt;
+                        &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                        &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                        &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                    &lt;/button&gt;
+                    &#64;Html.ActionLink("Typing Test", "Index", "Test", new { area = "" }, new { &#64;class = "navbar-brand" })
+                &lt;/div&gt;
+                &lt;div class="navbar-collapse collapse"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="container body-content"&gt;
+            &#64;RenderBody()
+            &lt;hr /&gt;
+            &lt;footer&gt;
+                &lt;p&gt;&copy; &#64;DateTime.Now.Year - My ASP.NET Application&lt;/p&gt;
+            &lt;/footer&gt;
+        &lt;/div&gt;
+        &#64;Scripts.Render("~/bundles/jquery")
+        &#64;Scripts.Render("~/bundles/bootstrap")
+        &#64;RenderSection("scripts", required: false)
+    &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+    </li>
+    <li>
+        <p>Add the following CSS styles for the existing markup to the <b>MyStyles.css</b> file.</p>
+<pre>
+h1 {
+    font-size: 32px !important;
+    color: #428bca !important;
+    margin: 25px 0 !important;
+}
+#menu {
+    height: 64px;
+    margin-bottom: 20px;
+}
+#menu div {
+    float: left;
+    width: 100px;
+    margin-right: 10px;
+}
+#menu div p{
+    text-align:center;
+}
+#comboText, #comboTime {
+    width:150px !important;
+    vertical-align:middle;
+}
+.comboboxContainer {
+    width:140px !important;
+}
+</pre>
+    </li>
+    <li>
+        <p>The last change will allow you to see the <b>Index</b> view once you run the project without adding "/Test/Index" words to the browser's address bar. It will simplify your work with the project. To do this:</p>
+        <ul>
+            <li>Open the <b>RouteConfig.cs</b> file in the <b>AppStart</b> folder.</li>
+            <li>Change the default value <b>HomeController</b> of the controller to <b>TestController</b>. Leave <b>action</b> value <b>Index</b> as default.</li>
+        </ul>
+        <p>The <code>RouteConfig</code> class is due to look like the following.</p>
+<pre>
+    public class RouteConfig
+    {
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Test", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+    }
+</pre>
+    </li>
+</ol>
+<p>
+    Having added all the changes, run the project. It is supposed to look like the following.
+    <img src="~/Content/Tutorial/8.png" alt="The result of the second step - View of the Typing Test app" />
+<p class="imageDescr">The result of the second step - View of the Typing Test app</p>
+<p>Currently you can change the selected value in each drop-down combo box, but it does not affect anything. In the next step you will complicate the program by adding the block for the text sample and connect it with one of existing SELECT elements.</p>

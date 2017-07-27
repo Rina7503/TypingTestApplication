@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/MyScripts/bottomTutorialMenu.js"></script>
+    <link type="text/css" href="~/Content/MyTutorialStyles.css" rel="stylesheet" />
+    <style>
+        #sideBar li.active a {
+            background-color: rgba(240,240,240,0.5);
+            color: orangered;
+            font-weight: bold;
+        }
+    </style>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body style="overflow-y:scroll;">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Typing test", "Index", "Test", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Tutorial", "part0", "Tutorial", new { area = "" }, new { @id = "tutorial-link" })</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+
+        <div class="row">
+            <div class="col-sm-4 blog-sidebar">
+                <div class="list-group">
+                    <ol id="sideBar" style="list-style-type:none; padding:20px 0;">
+                        <li id="link0"><a href="/Tutorial/part0" class="list-group-item @ViewBag.Selection0">Introduction</a></li>
+                        <li id="link1"><a href="/Tutorial/part1" class="list-group-item @ViewBag.Selection1">1. Create and Prepare an MVC Project</a></li>
+                        <li id="link2"><a href="/Tutorial/part2" class="list-group-item @ViewBag.Selection2">2. Add the Selection of the Text Fragment and the Time Period</a></li>
+                        <li id="link3"><a href="/Tutorial/part3" class="list-group-item @ViewBag.Selection3">3. Add the Loading of the Original Text</a></li>
+                        <li id="link4"><a href="/Tutorial/part4" class="list-group-item @ViewBag.Selection4">4. Add the User Text Input and Output</a></li>
+                        <li id="link5"><a href="/Tutorial/part5" class="list-group-item @ViewBag.Selection5">5. Add the Verification of the User Text</a></li>
+                        <li id="link6"><a href="/Tutorial/part6" class="list-group-item @ViewBag.Selection6">6. Add the UI Elements to Track the Dynamic Results</a></li>
+                        <li id="link7"><a href="/Tutorial/part7" class="list-group-item @ViewBag.Selection7">7. Add Validation and Notification Problems</a></li>
+                        <li id="link8"><a href="/Tutorial/part8" class="list-group-item @ViewBag.Selection8">8. Add Default Settings</a></li>
+                        <li id="link9"><a href="/Tutorial/part9" class="list-group-item @ViewBag.Selection9">9. Prepare and Output the Test Results</a></li>
+                    </ol>
+                </div>
+            </div>
+            <div class="col-sm-8 blog-main" id="viewMainContent">
+                @RenderBody()
+                <div id="links">
+                    <div id="prevLink"><a id="back" href=""></a></div>
+                    <div id="nextLink"><a id="next" href=""></a></div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <footer>
+            <p>@DateTime.Now.Year - Minakova Irina</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+    <script type="text/javascript">
+        $(document).ready(
+            function () {
+                var prevPage = "@ViewBag.prevTitle";
+                var nextPage = "@ViewBag.nextTitle";
+                var current = @ViewBag.currentPage;
+
+                setMenu(current, prevPage, nextPage);
+            }
+        );
+
+        //add line numbers to PRE tag
+        (function() {
+            var pre = document.getElementsByClassName('numberedCode'),
+                pl = pre.length;
+            for (var i = 0; i < pl; i++) {
+                pre[i].innerHTML = '<span class="line-number"></span>' + pre[i].innerHTML + '<span class="cl"></span>';
+                var num = pre[i].innerHTML.split(/\n/).length;
+                for (var j = 0; j < num; j++) {
+                    var line_num = pre[i].getElementsByTagName('span')[0];
+                    line_num.innerHTML += '<span>' + (j + 1) + '</span>';
+                }
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

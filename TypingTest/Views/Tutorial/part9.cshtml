@@ -1,0 +1,206 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part9";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>9. Prepare and Output the Test Results</h1>
+<p>In this step you will work with the result view of the app. You will create the result data object and send it to the view to display the test results.</p>
+
+<h3>To prepare the result data object</h3>
+<ol>
+    <li>
+        <p>Create a new C# class in the <b>Models</b> folder, specify its name <b>TestResult</b>. Use the <code>System.ComponentModel.DataAnnotations</code> namespace and fill the class with the following code.</p>
+<pre>
+    public class TestResult {
+        [Key]
+        public int Id { get; set; }
+        [Display(Name = "Text title")]
+        public string textTitle { get; set; }
+        [Display(Name = "Test duration")]
+        public string factTime { get; set; }
+        [Display(Name = "Printed chars")]
+        public int numberPrintedSymbols { get; set; }
+        [Display(Name = "Printed words")]
+        public int numberPrintedWords { get; set; }
+        [Display(Name = "Max speed, symb./sec.")]
+        public int typingSpeedMax { get; set; }
+        [Display(Name = "Average speed, symb./min.")]
+        public int typingAverageSpeed { get; set; }
+        [Display(Name = "Errors")]
+        public int mistakesCount { get; set; }
+        [Display(Name = "Errors, %")]
+        public string mistakesPersent { get; set; }
+    }
+</pre>
+    </li>
+    <li>
+        <p>To get the result object, add a new <b>JavaScript</b> method to the <code>TypingTrainerController</code> class.</p>
+<pre>
+     function prepareResultObject() {
+        var testObject = new Object();
+        testObject.textTitle = currentTextName;
+        if (timeSessionFact) {
+            if (timeSessionFact == 1) {
+                testObject.factTime = timeSessionFact + " minute";
+            }
+            else if (timeSessionFact == 2 || timeSessionFact == 3) {
+                testObject.factTime = timeSessionFact + " minutes";
+            }
+        }
+        else {
+            if (60 - timerLeftSecounds != 60) {
+                testObject.factTime = ((timeSessionPlan - 1 - timerLeftMinutes) > 0 ? (timeSessionPlan - 1 - timerLeftMinutes) : 0) + " minutes, " + (60 - timerLeftSecounds) + " secounds";
+            }
+            else { testObject.factTime = ((timeSessionPlan - timerLeftMinutes) > 0 ? (timeSessionPlan - timerLeftMinutes) : 0) + " minutes, " + "0 secounds"; }
+        }
+        testObject.numberPrintedSymbols = symbCount;
+        testObject.numberPrintedWords = wordsCounter;
+        testObject.typingSpeedMax = maxSpeed;
+        var speedSum = 0;
+        for (i = 0; i < listSpeed.length; i++) {
+            speedSum += listSpeed[i];
+        }
+        testObject.typingAverageSpeed = Math.round(speedSum / listSpeed.length * 60);
+        testObject.mistakesCount = mistakesCount;
+        testObject.mistakesPersent = (mistakesCount / wordsCounter * 100).toFixed(2);
+        if (testObject.mistakesPersent == "NaN") {
+            testObject.mistakesPersent = 0;
+        }
+        return testObject;
+    }
+</pre>
+    </li>
+    <li>
+        <p>Create a new C# method <code>Result</code> in the <code>TestController.cs</code> file. Note that the method has to have the <code>[HttpPost]</code> attribute, as it receives the <code>TestResult testResult</code> object. Use the <code>TypingTestApp.Models</code> namespace.</p>
+<pre>
+    [HttpPost]
+    public ActionResult Result(TestResult testResult)
+    {
+        ViewResult result = View("Result", testResult);
+        return result;
+    }
+</pre>
+    </li>
+    <li>
+        <p>Add the following <b>JavaScript</b>code to the bottom of the <code>Index</code> view to send the <code>testObject</code> data to the <code>Result</code> method of the <code>TestController</code>.</p>
+<pre>
+    function sendData(resultTestObject) {
+        $.ajax({
+            type: "POST",
+            url: "&#64;Url.Action("Result")",
+            data: { testResult: resultTestObject },
+        success: function (responceData) {
+            var detailDiv = $('#viewMainContent');
+            detailDiv.replaceWith(responceData);
+            }
+        });
+    }
+</pre>
+    </li>
+    <li>
+        <p>Create the mentioned <code>resultTestObject</code> variable, fill it with the test data and send it to the view. Correct the <code>stopTest</code> method of the <code>TypingTrainerController</code> class to match with the following code.</p>
+<pre>
+    function stopTest() {
+        isTimerStarted = false;
+        clearInterval(MyTimer);
+        var resultTestObject = prepareResultObject();
+        sendData(resultTestObject);
+    }
+</pre>
+    </li>
+</ol>
+<p>To send the result data from the main view to the result one you have used the <a href="http://api.jquery.com/jquery.ajax/"><b>Ajax</b></a> request. In fact it sends the data to the <code>Result</code> method of the <code>TestController</code> and then replaces the content of the <code>viewMainContent</code> DIV element of the main <code>Index</code> view with the tags of the <code>Result</code> view, which was indicated in the controller method. Herewith the value in the browser's address bar does not change.</p>
+
+<h3>Create the result view</h3>
+<ol>
+    <li>
+        <p>Create a new view by right-clicking in the body of the <code>Result</code> method, click <b>Add View</b>. In the <b>Add View</b> dialog box:</p>
+        <ul>
+            <li>Leave <b>Name</b> as default - "Result"</li>
+            <li>Specify the <b>Template</b> as <b>Empty</b>.</li>
+            <li>Specify <b>Model class</b> as <b>TestResult (TypingTestApp.Models)</b></li>
+            <li>Make sure the layout page is filled with the <b>_Layout.cshtml</b> file</li>
+            <li>Click <b>Add</b>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Delete the <code>h2</code> heading, add the following markup, which corresponds to the <code>TestResult</code> fields.</p>
+<pre>
+&lt;h1&gt;Test results&lt;/h1&gt;
+&lt;div&gt;
+    &lt;hr /&gt;
+    &lt;dl class="dl-horizontal"&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.textTitle)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.textTitle)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.factTime)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.factTime)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.numberPrintedSymbols)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.numberPrintedSymbols)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.numberPrintedWords)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.numberPrintedWords)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.typingSpeedMax)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.typingSpeedMax)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.typingAverageSpeed)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.typingAverageSpeed)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.mistakesCount)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.mistakesCount)
+        &lt;/dd&gt;
+        &lt;dt&gt;
+            &#64;Html.DisplayNameFor(model =&gt; model.mistakesPersent)
+        &lt;/dt&gt;
+        &lt;dd&gt;
+            &#64;Html.DisplayFor(model =&gt; model.mistakesPersent)
+        &lt;/dd&gt;
+    &lt;/dl&gt;
+    &lt;hr /&gt;
+&lt;/div&gt;
+&lt;p&gt;
+    &#64;Html.ActionLink("Pass again", "Index", "Test")
+&lt;/p&gt;
+</pre>
+    </li>
+    <li><p>Open the <b>_Layout.cshtml</b> file. Specify the <code>div</code> block in line 27 with the attribute <code>id="viewMainContent"</code> to replace the content of the page with the test results as it is set in the <code>sendData</code> method.</p></li>
+    <li>
+        <p>Add the following CSS styles to the <b>MyStyles.css</b> file.</p>
+        <pre>
+dd {
+    margin-bottom: 15px!important;
+}
+</pre>
+    </li>
+</ol>
+<p>
+    Run the project, input a few words and then click <b>Stop</b>. You will get the result view similar to the following.
+    <img src="~/Content/Tutorial/2.png" alt="The test result view" />
+</p>
+<p class="imageDescr">The test result view</p>
+<p>At this stage the project is completed.</p>
+<p>To download the completed version of the test, see the app on <a href="https://github.com/Rina7503/TypingTestApplication">github.com</a>.</p>

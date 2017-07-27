@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part8";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>8. Add Default Settings</h1>
+
+<p>Currently when you start the app, you see two fields for the text input and output, both of which are empty. In this step of the guidance you will add default settings and notify the user where he is supposed to start printing by decorating an area for text input.</p>
+<h3>To add default settings</h3>
+<ol>
+    <li>
+        <p>Add the following method to the <code>TypingTrainerController</code> class to load the first text fragment and set the shortest time period as default settings.</p>
+<pre>
+    function setDefaultSettings() {
+        if (document.getElementById('Texts').selectedIndex == 0) {
+            document.getElementById('Texts').selectedIndex = 1;
+            loadText();
+            document.getElementById('Time').selectedIndex = 1;
+            setTimer();
+        }
+    }
+</pre>
+    </li>
+    <li>
+        <p>Execute the method <code>setDefaultSettings</code> in the <code>TypingTrainerController</code> class.</p>
+<pre>
+    setDefaultSettings();
+</pre>
+    </li>
+</ol>
+<h3>To decorate an area for text input</h3>
+<p>The block for the text input is still empty. To notify the user where the text is supposed to be input, create a flickering inscription with the words "Start printing here!". To do this:</p>
+<ol>
+    <li>
+        <p>Add the inscription to the <code>textOutputContainer</code> in the <b>Index</b> view.</p>
+<pre>
+    &lt;div id="textOutputContainer" contenteditable="true"&gt;
+        &lt;p id="startText"&gt;Start printing here!&lt;/p&gt;
+        &lt;div id='mock_cursor' style="visibility:hidden;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+</pre>
+    </li>
+    <li>
+        <p>Add the following CSS styles.</p>
+<pre>
+#startText {
+-webkit-animation: blink 1s infinite;
+animation: blink 1s infinite;
+font-size: 1.2em;
+color: #2178bd;
+font-weight:bold;
+visibility:visible;
+}
+</pre>
+    </li>
+    <li>
+        <p>The block for the text input should be cleared after the click. To do this, add the following code to the <code>FieldClick</code> method of the <code>PrintController</code> class.</p>
+<pre>
+    var startText = document.getElementById("startText");
+    if (startText) {
+        outputField.removeChild(startText);
+    }
+</pre>
+    </li>
+</ol>
+<p>
+    As soon as you run the project, you will get the view where both the drop-down lists values are set by default. The application view is similar to the shown below.
+    <img src="~/Content/Tutorial/16.png" alt="The test main view after applying default settings" />
+</p>
+<p class="imageDescr">The test main view after applying default settings</p>
+<p>At this point work with the main test view has been finished.</p>

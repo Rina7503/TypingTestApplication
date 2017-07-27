@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part1";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>1. Create and Prepare an MVC Project</h1>
+
+<p>As the first step in developing the Typing Test application, create a new MVC project and prepare the project by adding a new controller and a new view.</p>
+<h3>To create a new project</h3>
+<ol>
+    <li>
+        <p>Open <b>Visual Studio</b>. On the menu bar, click <b>File</b>, then select <b>New</b>, and then click <b>Project</b>, or, instead of this, you can create a new project by clicking <b>New Project</b> from the <b>Start</b> page.</p>
+    </li>
+    <li>
+        <p>In the <b>New Project</b> dialog box:</p>
+        <ul>
+            <li>
+                <p>On the left of the <b>New Project</b> dialog box select <b>Installed</b>, then click <b>Templates</b>. On the list of templates select <b>Visual C#</b>, then click <b>Web</b>. </p>
+            </li>
+            <li>
+                <p>In the middle of the dialog box above the list of the templates select <b>.Net Framework version 4.5</b>. Then on the list of templates, select the <b>ASP.NET Web Application</b> template. </p>
+            </li>
+            <li>
+                <p>On the right of the dialog box click <b>Change Authentication</b>. Then in the <b>Change Authentication</b> box select <b>No Authentication</b>, and then click <b>OK</b>.</p>
+            </li>
+            <li>
+                <p>Name the project <b>Typing Test</b>, choose the location to store the project. Make sure the <b>Create directory for solution</b> check box is selected, and then click <b>OK</b>.</p>
+            </li>
+        </ul>
+    <li>
+        <p>In the <b>New ASP.Net Project</b> dialog box select the <b>MVC</b> template among the <b>ASP.Net 4.5.2 Templates</b> and click <b>OK</b>.</p>
+    </li>
+</ol>
+<p>The project has been created by default.</p>
+<h3>To create a new controller</h3>
+<ol>
+    <li>
+        <p>In <b>Solution Explorer</b>, right-click the <b>Controllers</b> folder and then click <b>Add</b>, then click <b>Controller</b>.</p>
+    </li>
+    <li>
+        <p>In the <b>Add Scaffold</b> dialog box, click <b>MVC 5 Controller - Empty</b>, and then click <b>Add</b>.</p>
+    </li>
+    <li>
+        <p>In the <b>Add Controller</b> dialog box specify controller name <b>TestController</b>, click <b>Add</b>.</p>
+    </li>
+</ol>
+<p> Notice that a new file named <b>TestController</b> has been created in the <b>Controllers</b> folder, and a new folder <b>Views\Test</b> has also been created.</p>
+<p>By default, the controller <code>TestController</code> consists of the one <code>Index</code> method returning the <code>Index</code> view.</p>
+<p>
+    The method looks like the following.
+    <img src="~/Content/Tutorial/3.png" alt="Default MVC controller" />
+</p>
+<p class="imageDescr">Default MVC controller</p>
+<h3>To create a new view</h3>
+<ol>
+    <li>
+        <p>In <b>Solution Explorer</b>, right-click in the body of the <code>Index</code> method within the <code>TestController</code>  class and click <b>Add View</b>.</p>
+    </li>
+    <li>
+        <p>In the <b>Add View</b> dialog box, leave the <b>View name</b> box as the default view engine - <b>Index</b>. On the <b>Template</b> list, click <b>Empty (without model)</b>. Leave the <b>Create as a partial view</b> check box unselected. To select the value for the <b>Use a layout page</b> box, click the <b>Additionally</b> button <img id="buttonImage" src="~/Content/Tutorial/4.png" alt="The 'Additionally' button" />.</p>
+    </li>
+    <li>
+        <p>On the list of the project folders, select the <b>Views/Shared</b> folder. In the <b>Contents of folder</b> select <b>_Layout.cshtml</b>. Press <b>OK</b>.</p>
+    </li>
+    <li>
+        <p>In the <b>Add View</b> dialog box, click <b>Add</b>.</p>
+    </li>
+</ol>
+<p>The <b>_Layout.cshtml</b> file is a template for views. It allows you to specify the HTML container layout in one place and then apply it across multiple pages on your site. It is also used to add separate files to the project, for example <b>CSS</b> files of styles, <b>JavaScript</b> files and other content types that are required.</p>
+<p>The <b>Index.cshtml</b> view file has been created in the <b>Views\Test</b> folder. By default, it looks like the following.<img src="~/Content/Tutorial/5.png" alt="Default MVC View" /></p>
+<p class="imageDescr">Default MVC view</p>
+<p>Check out the results of this step.</p>
+<p>Start the project using <b>Debug</b> on the menu bar, then click <b>Start Debugging</b>, or press <b>F5</b>. You will see the following web page. <img src="~/Content/Tutorial/6.png" alt="Default MVC project" /></p>
+<p>To see the <code>Index</code> view of the <code>TestController</code>, enter <b>/Test/Index</b> to the address bar of the browser after your local host name, and then press <b>Enter</b>. You will see the following empty page with the "Index" word as the <code>Index</code> view does not contain anything except it. <img src="~/Content/Tutorial/7.png" alt="Default MVC project - added View" /></p>
+<p class="imageDescr">The main initial view</p>

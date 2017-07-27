@@ -1,0 +1,224 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part5";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>5. Add the Verification of the User Text</h1>
+<p>In this step you will create an instance of the <code>PrintController</code> class. You will also learn what a callback is and how to use it. Furthermore, you will add verification of the user text. Finally, you will configure the cursor position's replacement.</p>
+
+<h3>To create a new instance of the PrintController class</h3>
+<p>Add the code below to the <code>TypingTrainerController</code> class.</p>
+<pre>
+    var printController = null;
+    function initialize() {
+        printController = new PrintController();
+    }
+    initialize();
+</pre>
+<p>You created a field <code>printController</code>, initialized it with an instance of the <code>PrintController</code> class using the <code>initialize</code> function and executed the function.</p>
+
+<h3>Create and use a callback function</h3>
+<p>The <code>TypingTrainerController</code> is the main controller of the app, therefore it will implement the word verification. It is appropriate to use a <a href="https://api.jquery.com/jQuery.Callbacks/">callback function</a> in this case.</p>
+<p>The callback is raised when you need to notify the external code that some particular event has occurred. You can also send the parameters to the callback to be used by these external subscribers. The subscribers are allowed but do not have to change the values of the parameters which were sent through the callback.</p>
+<p>After the handling function is executed, the program manager continues working from the point where the callback had been raised. If the callback parameters' values have been changed, the further code will take these changes into account.</p>
+<p>There is also possible that there are no subscribers for the callback. In this case the parameters' values will not be changed and the program executing will not interrupt current processing to handle the callback.</p>
+<p>Thus using a callback you can notify the external handler without adding hard-coded dependencies between the entities.</p>
+<p>To implement the callback:</p>
+<ol>
+    <li>
+        <p>Add the code below to the <code>PrintController</code> class.</p>
+<pre>
+    this.wordPrinted = $.Callbacks();
+</pre>
+        <p>You created a field <code>wordPrinted</code> and initialized it using a callback list.</p>
+    </li>
+    <li>
+        <p>In the <code>initialize</code> function of the <code>TypingTrainerController</code> class, subscribe the <code>printControllerWordPrinted</code> function for the <code>wordPrinted</code> callback. In other words add the function to the callback list.</p>
+<pre>
+    printController.wordPrinted.add(printControllerWordPrinted);
+</pre>
+    </li>
+    <li>
+        <p>Add a few fields to the <code>TypingTrainerController</code> class as well as the method <code>printControllerWordPrinted</code> to handle the <code>wordPrinted</code> callback.</p>
+<pre>
+    var self = this;
+    var origTextArray = ""; 
+    var wordsCounter = 0;
+    var mistakesCount = 0;
+ 
+    function printControllerWordPrinted(objArgs) {
+        wordsCounter = objArgs.counter;
+        DivideOrigTextByWords();
+        if (objArgs.currentWord != origTextArray[wordsCounter - 1]) {
+            objArgs.isMistake = true;
+            mistakesCount++;
+            document.getElementById('mistakes').innerHTML = mistakesCount;
+        }
+    }
+    
+    function DivideOrigTextByWords() {
+        if (wordsCounter == 1) {
+            if (origTextArray.length == 0) {
+                origTextArray = $("#textOriginal").text().split(" ");
+            }
+        }
+    }
+</pre>
+    </li>
+    <li>
+        <p>In the <code>FieldKeyPress</code> function of the <code>PrintController</code> class, send the required arguments to be processed by the callback, and then execute the callback by adding a piece of code inside the condition "the <b>Space</b> key has been pressed" but before you call the <code>paintText</code> function.</p>
+<pre>
+    var param = { counter: wordsCounter, currentWord: currentWord, isMistake: false };
+    self.wordPrinted.fire(param);
+</pre>
+    </li>
+    <li>
+        <p>Add the <code>param.isMistake</code> value as a parameter to the <code>paintText</code> method.</p>
+<pre>
+    paintText(param.isMistake);
+</pre>
+    </li>
+</ol>
+<p>The full code of the <code>PrintController</code> class is shown below.</p>
+<pre>
+function PrintController() {
+    var self = this;
+    var symbolsCount = 0;
+    var wordsCounter = 0;
+    var currentWord = "";
+    var startTag = "&lt;p id=\"userText\"&gt;";
+    var endTag = "&lt;/p&gt;";
+    var currentTextFieldValue = "";
+	
+	this.wordPrinted = $.Callbacks();
+	 
+    function subscribeEvents() {
+        var textPrintTag = document.getElementById('textInputContainer');
+        if (textPrintTag.addEventListener) {
+            textPrintTag.addEventListener("keypress", function (e) { FieldKeyPress(e); }, false);
+        }
+    }
+		
+    function FieldKeyPress(e) {
+        if (e.key.length &lt;= 1) {
+            symbolsCount++;
+            if (e.code == "Space") {
+                if (currentWord != "") {
+                    wordsCounter++;
+                    var param = { counter: wordsCounter, currentWord: currentWord, isMistake: false };
+                    self.wordPrinted.fire(param);
+                    paintText(param.isMistake);
+                    document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + endTag;
+                }
+                currentWord = ""; 
+            }
+            else {
+                currentWord = currentWord + e.key;
+                document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + currentWord + endTag;
+            }            
+        }
+    }
+	
+    function paintText(isMistake) {
+        if (isMistake) { 
+            currentTextFieldValue = currentTextFieldValue + "&lt;span class=\"mistake\"&gt;" + currentWord + " " + "&lt;/span&gt;";
+        }
+        else { 
+            currentTextFieldValue = currentTextFieldValue + currentWord + " ";
+        }
+    }
+    
+    subscribeEvents();
+}
+</pre>
+
+<p>In your case the callback <b>wordPrinted</b> will be raised in the <code>FieldKeyPress</code> method of the <code>PrintControll</code> class once the <b>Space</b> key has been pressed by the user. The <b>wordPrinted</b> callback accepts the <code>param</code> object as argument. The <code>param</code> object has the following fields.</p>
+<ul class="params">
+    <li class="params"><p class="paramTitle">counter</p><p>Type: Integer</p><p>The field is initialized with the value of the <code>wordsCounter</code> variable, which is equal to current number of words have been input.</p></li>
+    <li class="params"><p class="paramTitle">currentWord</p><p>Type: String</p><p>The field is initialized with the value of the <code>currentWord</code> variable, which represents the last word which has been printed.</p></li>
+    <li class="params"><p class="paramTitle">isMistake</p><p>Type: Boolean</p><p>The field is initialized with the <code>false</code> value.</p></li>
+</ul>
+<p>The <code>TypingTrainerController</code> class is subscribed for the <code>wordPrinted</code> callback whereas the <code>printControllerWordPrinted</code> function is used to handle the callback. This method proceeds the verification of the last input word by comparing it with the word located at the same position in the original text. In case the words are not equal, the value of the <code>param.isMistake</code> argument is changed to <code>true</code>. Then the program manager returns to the <code>FieldKeyPress</code> method and executes the <code>printText</code> function sending the <code>param.isMistake</code> value to it. As a result the last printed word is wrapped with SPAN tags, which have special CSS styles to color the word in red. In case the word is input without mistakes, it is colored green.</p>
+
+<h3>Configure the cursor position</h3>
+<p>As the text input and output is implemented in different blocks, the text input does not affect the cursor location. To set the cursor flickering after the <code>textInputContainer</code> block has been clicked:</p>
+<ol>
+    <li>
+        <p>Add a new function to the <code>PrintController</code> class, name it <b>FieldClick</b>.</p>
+<pre>
+    function FieldClick(evt) {
+        var outputField = document.getElementById("textOutputContainer");
+        if ($("#mock_cursor").css("visibility", "hidden")) {
+            $("#mock_cursor").css("visibility", "visible");
+        }
+    }       
+</pre>
+    </li>
+    <li>
+        <p>
+            Subscribe for the <b>click</b> event in the <code>subscribeEvents</code> method by adding the following statements.
+<pre>
+    function subscribeEvents() {
+        var textPrintTag = document.getElementById('textInputContainer');
+        textPrintTag.addEventListener("keypress", function (e) { FieldKeyPress(e); }, false);
+        textPrintTag.addEventListener("click", function (e) { FieldClick(e); }, false);
+    }
+</pre>
+    </li>
+    <li>
+        <p>Add the following markup to the <code>textOutputContainer</code>block in the <code>Index</code> view.</p>
+        <pre>
+    &lt;div id='mock_cursor' style="visibility:hidden;"&gt;&lt;/div&gt;</pre>
+    </li>
+    <li>
+        <p>Add the following code to the <code>FieldKeyPress</code> method of the <code>PrintController</code> class.</p>
+        <pre>
+    var cursor = "&lt;div id='mock_cursor'&gt; &lt;/div&gt;";
+    $("#mock_cursor").remove();
+    if (($("#userText")).length == 0) {
+        document.getElementById("textOutputContainer").innerHTML = startTag + endTag;
+    }
+    $(cursor).insertAfter($("#userText"));
+    </pre>
+    </li>
+    <li>
+        <p>Add the CSS styles which are given below.</p>
+        <pre>
+#inputEmulation span{
+    margin: 10px 0px;
+}
+&#64;-webkit-keyframes blink {
+    0%, 49.9%, 100%   { opacity: 0; }
+    50%, 99.9% { opacity: 1; }
+}
+#mock_cursor {
+position:absolute;
+    display: inline-block;
+    -webkit-animation: blink 1s infinite;
+    animation: blink 1s infinite;
+    font-weight:  lighter;
+    width:1px;
+    height:25px;
+    background-color:black;
+    margin-top:2px;
+    margin-right:1px;
+}
+#userText {
+display: inline !important;
+}
+</pre>
+    </li>
+</ol>
+
+<p>
+    Run the project, select the text and enter a word with a mistake. As the result of the step, the view looks like the following.
+    <img src="~/Content/Tutorial/11.png" alt="The text that is entered with mistakes displays red" />
+</p>
+<p class="imageDescr">The text that is entered with mistakes displays red</p>
+<p>As you can see the text with mistakes is colored red, the rest of the text is colored green.</p>
+<p>At the next step you will add UI elements to track the test progress.</p>
+
+
+
+

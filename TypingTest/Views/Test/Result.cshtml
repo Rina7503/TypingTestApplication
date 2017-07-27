@@ -1,0 +1,83 @@
+﻿@model TypingTest.Models.TestResult
+
+@{
+    ViewBag.Title = "Result";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Test results</h1>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.textTitle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.textTitle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.factTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.factTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.numberPrintedSymbols)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.numberPrintedSymbols)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.numberPrintedWords)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.numberPrintedWords)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.typingSpeedMax)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.typingSpeedMax)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.typingAverageSpeed)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.typingAverageSpeed)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mistakesCount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mistakesCount)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mistakesPersent)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mistakesPersent)
+        </dd>
+
+    </dl>
+    <hr />
+</div>
+<p>
+    @Html.ActionLink("Pass again", "Index", "Test")
+</p>

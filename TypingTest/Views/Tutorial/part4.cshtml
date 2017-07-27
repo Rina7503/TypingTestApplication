@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part4";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>4. Add the User Text Input and Output</h1>
+
+<p>In this step you will create a new <b>JavaScript</b> class which will be responsible for the text input and displaying after the formatting. You will also add the appropriate HTML markup.</p>
+
+<h3>To add the markup for the text input and displaying</h3>
+<ol>
+    <li>
+        <p>At the end of the existing markup in the <b>Index</b> view, add a new DIV element with the attributes:  <code>id="textOutputContainer"</code>, <code>contenteditable="true"</code>. The element is named as <code>textOutputContainer</code> on subsequent mentions.</p>
+    </li>
+    <li>
+        <p>Add another DIV element with the attributes: <code>id="textInputContainer"</code>, <code>contenteditable="true"</code>. The element is named as <code>textInputContainer</code> on subsequent mentions.</p>
+    </li>
+    <li>
+        <p>Add the following CSS styles for these DIV elements. </p>
+<pre>
+#textOutputContainer, #textInputContainer  {
+    height:150px;
+    width:100%;
+    background-color: rgba(240,240,240,0.5);
+    border-radius:5px;
+    border:1px solid #cccccc;
+    font-size: 1.5em;
+    margin-top:5px;
+    color:green;
+}
+#textInputContainer
+{
+    opacity: 0;
+    margin-top: -150px;
+}
+.mistake {color:red;}
+</pre>
+    </li>
+</ol>
+<p>To add an ability for the text input, you have just created the <code>textInputContainer</code> block with the <code>contenteditable</code> attribute. It is good for the purpose of the text input, but this attribute does not allow to do any custom text processing before the text is displayed in the DIV element. The text is displayed once it has been entered, because of this reason the uncorrected text should be hidden from the user. You will achieve it by setting the <b>opacity</b> property to zero using the styles above.</p>
+<p>To display the formatted text after the verification, you have created the second DIV element <code>textOutputContainer</code>.</p>
+
+<h3>To add a new <b>JavaScript</b> class for the text input and displaying after the formatting</h3>
+
+<ol>
+    <li>
+        <p>Create a new <b>JavaScript</b> file in the <b>MyScripts</b> folder, specify its name <b>PrintController</b>. Add this file to the project by adding a link to the <code>Index</code> view.</p>
+<pre>
+&lt;script type="text/javascript" src="~/Scripts/MyScripts/PrintController.js"&gt;&lt;/script&gt;
+</pre>
+    </li>
+    <li>
+        <p>Add the following code to the <b>PrintController.js</b> file.</p>
+<pre>
+function PrintController() {
+    var self = this;
+    var symbolsCount = 0;
+    var wordsCounter = 0;
+    var currentWord = "";
+    var startTag = "&lt;p id=\"userText\"&gt;";
+    var endTag = "&lt;/p&gt;";
+    var currentTextFieldValue = "";
+    function subscribeEvents() {
+        var textPrintTag = document.getElementById('textInputContainer');
+        if (textPrintTag.addEventListener) {
+            textPrintTag.addEventListener("keypress", function (e) { FieldKeyPress(e); }, false);
+        }
+    }
+    function FieldKeyPress(e) {
+        if (e.key.length &lt;= 1) {
+            symbolsCount++;
+            if (e.code == "Space") {
+                if (currentWord != "") {
+                    wordsCounter++;
+                    paintText();
+                    document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + endTag;
+                }
+                currentWord = ""; 
+            }
+            else {
+                currentWord = currentWord + e.key;
+                document.getElementById("textOutputContainer").innerHTML = startTag + currentTextFieldValue + currentWord + endTag;
+            }            
+        }
+    }
+    function paintText(isMistake) {
+        if (isMistake) {
+            currentTextFieldValue = currentTextFieldValue + "&lt;span class=\"mistake\"&gt;" + currentWord + "&nbsp;" + "&lt;/span&gt;";
+        }
+        else {
+            currentTextFieldValue = currentTextFieldValue + currentWord + "&nbsp;";
+        }
+    }
+    
+    subscribeEvents();
+}
+</pre>
+        <p>You have just added a new class <code>PrintController</code> that is responsible for the text input and storage. The <code>PrintController</code> class has the <code>FieldKeyPress</code> function which is called once the <b>keypress</b> event has occurred.</p>
+        <p>The function proceeds to work if the pressed key is a letter, number, punctuation or space. The keys' values concatenate till the space has been pressed, then the value of the current word is saved in the appropriate variable, and the words counter increments. When text verification proceeds in the <code>TypingTrainerController</code> class, it returns the <b>boolean</b> value: whether the current word has a mistake or not. Depending on this the <code>paintText</code> function wraps the word with the additional SPAN tags to assign a special CSS styles to it.</p>
+    </li>
+</ol>
+<p>The current step has no visual changes in the view, as the text verification will be added in the next step.</p>

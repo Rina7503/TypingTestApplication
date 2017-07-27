@@ -1,0 +1,249 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial_part6";
+    Layout = "~/Views/Shared/_TutorialLayout.cshtml";
+}
+
+<h1>6. Add the UI Elements to Track the Dynamic Results</h1>
+<p>In this step you will complete UI design of the main view by adding UI elements which will help to track the user progress such as speed of typing, number of mistakes, timer. You will also add computing for these elements as well as buttons for the test reloading and finishing.</p>
+<h3>To add the UI items to the view</h3>
+<ol>
+    <li>
+        <p>Add the HTML markup to the <code>menu</code> block before the <code>&lt;div id="comboText"&gt;</code> element.</p>
+        <pre>
+&lt;div id="menu"&gt;
+    &lt;div&gt;
+        &lt;p&gt;Speed keys/sec&lt;/p&gt;
+        &lt;p id="currentSpeed"&gt;0&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;p&gt;Mistakes&lt;/p&gt;
+        &lt;p id="mistakes"&gt;0&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;p&gt;Timer&lt;/p&gt;
+        &lt;p id="timer"&gt;00:00&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div id="stop" style="cursor: pointer;"&gt;
+	    &lt;p&gt;Finish&lt;/p&gt;
+	    &lt;p id="stopCurrGame"&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div id="reload" style="cursor: pointer;"&gt;
+	    &lt;p&gt;Restart&lt;/p&gt;
+	    &lt;p id="refreshCurrGame"&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div id="comboText"&gt;
+    ...
+&lt;/div&gt;
+    </pre>
+    </li>
+    <li>
+        <p>Add the CSS styles to the <code>MyStyles.css</code> file.</p>
+        <pre>
+#stopCurrGame {
+background: #ffffff url("/Content/Images/stop.png") no-repeat 0 0;
+height:34px;
+width:34px;
+margin-left:33px;
+}
+#refreshCurrGame {
+background: #ffffff url("/Content/Images/reload.png") no-repeat 0 0;
+height:34px;
+width:42px;
+margin-left:29px;
+}
+#currentSpeed, #mistakes, #timer {
+font-size: 1.5em;
+font-weight:600 ;
+color: #2178bd;
+}
+</pre>
+    </li>
+    <li>
+        <p>Create a new folder <b>Content/Images</b>, and then add the images for the last two buttons to this folder.</p>
+    </li>
+</ol>
+
+<h3>To bind the timer to the value of the "Time" drop-down combo box</h3>
+<ol>
+    <li>
+        <p>Subscribe for the <b>change</b> event of the <code>Time</code> element</p>
+        <pre>
+    document.getElementById("Time").addEventListener("change", timeBoxChanged, false);</pre>
+    </li>
+    <li>
+        <p>Add the <code>isFieldEmpty</code> field to the <code>PrintController</code> class.</p>
+<pre>
+    this.isFieldEmpty = function () {
+        return currentTextFieldValue == "" && currentWord == "";
+    }
+</pre>
+    </li>
+    <li>
+        <p>Add the following functions to the <code>TypingTrainerController</code>.</p>
+        <pre>
+    function timeBoxChanged() {
+        if (printController.isFieldEmpty()) {
+            setTimer();
+        }
+    }
+    function setTimer() {
+        var timeIndex = document.getElementById("Time").selectedIndex;
+        var timerElement = document.getElementById("timer");
+        if (timeIndex == 0) {
+            timerElement.innerHTML = "00:00";
+        }
+        else if (timeIndex == 1) {
+            timerElement.innerHTML = "01:00";
+        }
+        else if (timeIndex == 2) {
+            timerElement.innerHTML = "02:00";
+        }
+        else if (timeIndex == 3) {
+            timerElement.innerHTML = "03:00";
+        }
+    }
+</pre>
+    </li>
+</ol>
+
+
+<h3>To add calculations for the statistic elements</h3>
+<ol>
+    <li>
+        <p>Add a few fields to the <code>TypingTrainerController</code> class.</p>
+<pre>
+    var symbCount = 0;
+    var symbCountPerSecound = 0;
+    var isTimerStarted = false;    
+    var timerLeftMinutes = 0;    
+    var timerLeftSecounds = 0;
+    var listSpeed = new Array();
+    var maxSpeed = 0;
+    var timeSessionPlan = 0; 
+    var timeSessionFact;
+    var currentTextIndex = 0;
+    var currentTimeIndex = 0;
+</pre>
+    </li>
+    <li>
+        <p>In the end of the <code>setTimer</code> function initialize the variables <code>timerLeftMinutes</code> and <code>timeSessionPlan</code> with the <b>integer</b> value which are equal to appropriate <code>timeIndex</code> value.</p>
+        <pre>
+        timerLeftMinutes = timeIndex;
+        timeSessionPlan = timeIndex;</pre>
+        <p>At this stage you can set the timer value by selecting the <code>Time</code> drop-down combo box value.</p>
+    </li>
+    <li>
+        <p>Add a new function <code>timerGo</code> to the class.</p>
+        <pre>
+    function timerGo() {
+        if (isTimerStarted === true) {
+            return;
+        }
+        isTimerStarted = true;
+        var currentSpeed = 0;
+        var seconds = timerLeftSecounds;
+        var minutes = timerLeftMinutes;
+        var increment = 0;
+        MyTimer = setInterval(function () {
+            --seconds;
+            if (seconds == -1) {
+                --minutes;
+                seconds = 59;
+            }
+            timerLeftMinutes = minutes;
+            timerLeftSecounds = seconds;
+            document.getElementById("timer").innerHTML = (minutes < 10 ? ("0" + minutes) : minutes) + ":" + (seconds < 10 ? ("0" + seconds) : seconds);
+            if (minutes == 0 && seconds == 0) {
+                clearInterval(MyTimer);
+                timeSessionFact = timeSessionPlan;
+            }
+            currentSpeed = symbCountPerSecound;
+            if (currentSpeed == NaN || currentSpeed == Infinity) {
+                document.getElementById("currentSpeed").innerHTML = 0;
+            }
+            else {
+                document.getElementById("currentSpeed").innerHTML = currentSpeed;
+                listSpeed[increment] = currentSpeed;
+            }
+            if (maxSpeed < currentSpeed) { maxSpeed = currentSpeed; }
+            symbCountPerSecound = 0;
+            increment++;
+        }, 1000);
+    }
+</pre>
+    </li>
+    <li>
+        <p>Start timer having clicked the <code>textInputContainer</code> element. To do this add a new callback function to notify the controller about the <b>click</b> event occurred in the block.</p>
+        <ul>
+            <li>
+                <p>Add a field <code>symbolPrinting</code> to the <code>PrintController</code> class and initialize it using the callback list.</p>
+<pre>
+    this.symbolPrinting = $.Callbacks();
+</pre>
+            </li>
+            <li>
+                <p>In the <code>initialize</code> function of the <code>TypingTrainerController</code> class subscribe the <code>printControllerSymbolPrinting</code> function for the <code>symbolPrinting</code> callback.</p>
+<pre>
+    printController.symbolPrinting.add(printControllerSymbolPrinting);
+</pre>
+            </li>
+            <li>
+                <p>
+                    Add the <code>printControllerSymbolPrinting</code> function to the <code>TypingTrainerController</code> class to set the symbols counters and then run the timer.
+                </p>
+                <pre>
+    function printControllerSymbolPrinting(tempArgs) {
+        currentTextIndex = document.getElementById('Texts').selectedIndex;
+        currentTimeIndex = document.getElementById('Time').selectedIndex;
+        symbCount++;
+        symbCountPerSecound++;
+        timerGo();
+    }</pre>
+            </li>
+            <li>
+                <p>
+                    Send the required arguments to be processed by the callback, and then execute the callback in the <code>FieldKeyPress</code> method.
+                </p>
+                <pre>
+    var tempArgs = { currentArgs: e };
+    self.symbolPrinting.fire(tempArgs);</pre>
+            </li>
+
+        </ul>
+    </li>
+</ol>
+
+
+
+<h3>Set the buttons to reload and stop the test</h3>
+<p>To do this:</p>
+<ol>
+    <li>
+        <p>Add the following code to the <code>subscribeEvents</code> method of the <code>TypingTrainerController</code> class.</p>
+<pre>
+        document.getElementById('stop').addEventListener("click", stopTest, false);
+        document.getElementById('reload').addEventListener("click", reloadTest, false);
+</pre>
+    </li>
+    <li>
+        <p>Add the specified methods <code>stopTest</code> and <code>reloadTest</code> to the <code>TypingTrainerController</code> class.</p>
+<pre>
+    function stopTest() {
+        isTimerStarted = false;
+        clearInterval(MyTimer);
+    }
+    function reloadTest() {
+        location.reload();
+    }
+</pre>
+    </li>
+</ol>
+
+<p>
+    Having done all the corrections, the main view looks like it is shown below.
+    <img src="~/Content/Tutorial/12.png" alt="Statistic for the application" />
+</p>
+<p class="imageDescr">Statistic for the application</p>
+<p>Currently you can change the time of the test session by selecting the value in the <code>Time</code> drop-down combo box. The timer starts decrementing its value in one second after the <b>click</b> event occurs in the <code>textInputContainer</code>. The number of mistakes and current speed are also displayed correctly.</p>
+<p>Nevertheless, there are a few problems in the app, which will be solved in the next step of the guidance.</p>

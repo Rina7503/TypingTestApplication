@@ -1,0 +1,170 @@
+﻿/*Styles by Minakova Irina*/
+h1 {
+    font-size: 32px !important;
+    color: #428bca !important;
+    margin: 25px 0 !important;
+}
+#menu {
+    height: 64px;
+    margin-bottom: 20px;
+}
+#menu div {
+   float: left;
+    width: 100px;
+    margin-right: 10px;
+}
+#menu div p{
+    text-align:center;
+}
+#comboText, #comboTime {
+    width:150px !important;
+    vertical-align:middle;
+}
+.comboboxContainer {
+    width:140px !important;
+}
+#stopCurrGame {
+background: #ffffff url("/Content/Images/stop.png") no-repeat 0 0;
+height:34px;
+width:34px;
+margin-left:33px;
+}
+#refreshCurrGame {
+    background: #ffffff url("/Content/Images/reload.png") no-repeat 0 0;
+height:34px;
+width:42px;
+margin-left:29px;
+}
+.mistake {color:red;}
+#textOriginal {
+    height:250px;
+    width:100%;
+    background-color: rgba(240,240,240,0.3);
+    border-radius:5px;
+    border:1px solid #cccccc;
+    font-size: 1.5em;
+    overflow:hidden;
+}
+#textOutputContainer, #textInputContainer  {
+    height:150px;
+    width:100%;
+    background-color: rgba(240,240,240,0.5);
+    border-radius:5px;
+    border:1px solid #cccccc;
+    font-size: 1.5em;
+    margin-top:5px;
+    color:green;
+}
+#textInputContainer
+{
+    opacity: 0;
+    margin-top: -150px;
+}
+
+#inputEmulation span{
+    margin: 10px 0px;
+}
+@-webkit-keyframes blink {
+    0%, 49.9%, 100%   { opacity: 0; }
+    50%, 99.9% { opacity: 1; }
+}
+#mock_cursor {
+position:absolute;
+    display: inline-block;
+    -webkit-animation: blink 1s infinite;
+    animation: blink 1s infinite;
+    font-weight:  lighter;
+    width:1px;
+    height:25px;
+    background-color:black;
+    margin-top:2px;
+    margin-right:1px;
+}
+#userText {
+display: inline !important;
+}
+#overlay {
+	z-index:3; 
+	position:fixed;
+	background-color: rgba(240,240,240,0.7);
+	width:100%; 
+	height:100%; 
+	top:0;
+	left:0;
+	cursor:pointer;
+	display:none;
+}
+#modal, #modalChoise {
+	width: 310px; 
+	height: 120px;
+	border-radius: 7px;
+    border: 1px solid #bdbdbd;
+	background: #fff;
+	position: fixed;
+	top: 45%; 
+	left: 50%;
+	margin-top: -160px;
+	margin-left: -160px;
+	display: none; 
+	opacity: 0;
+	z-index: 5;
+	padding: 20px 10px;
+}
+.hiddenForm>p {
+    color: #555555;
+    font-weight: bold;
+    width: 280px;
+    text-align:center;
+}
+.continue_reload{
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    width: 100px;
+}
+.modal_close_back {
+    width: 100px;
+    margin: 0 20px 0 35px;
+    padding: 0;
+    float: left;
+}
+.modal_close_ok {
+    float: none;
+    margin-top: 0px;
+    margin-left: 74px;
+    margin-right: 0;
+    margin-bottom: 5px;
+    text-align: center;
+    width: 140px;
+}
+.continue_unvisible {
+    display: none;
+    width: 0;
+    float: none;
+}
+#startText {
+-webkit-animation: blink 1s infinite;
+animation: blink 1s infinite;
+font-size: 1.2em;
+color: #2178bd;
+font-weight:bold;
+visibility:visible;
+}
+#currentSpeed, #mistakes, #timer {
+font-size: 1.5em;
+font-weight:600 ;
+color: #2178bd;
+}
+#tutorial-link{
+    font-size: 18px;
+    line-height: 20px;
+    color:#ffffff;
+}
+.navbar-brand {
+    color: #ffffff!important;
+}
+
+dd {
+    margin-bottom: 15px!important;
+}
